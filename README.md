@@ -264,6 +264,11 @@ Contributions are welcome! Please ensure:
 
 ## Recent Updates
 
+- ✅ Added hierarchical project structure with nested todos in headings
+- ✅ Implemented `things_get_todo_details` for comprehensive task information
+- ✅ Consolidated URL scheme and JSON approaches, eliminating ~50 lines of duplicate code
+- ✅ Fixed AppleScript argument ordering issue in `things_get_project`
+- ✅ Added full attribute support for todos (notes, when, deadline, checklist)
 - ✅ Refactored codebase using AbstractToolHandler pattern
 - ✅ Implemented ToolRegistry for automatic tool discovery
 - ✅ Added comprehensive error handling with structured responses

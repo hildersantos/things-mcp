@@ -38,9 +38,9 @@ export async function executeAppleScriptFile(
     validateAppleScriptArg(arg, `argument[${index}]`)
   );
   
-  // Add maxResults as first argument if specified
+  // Add maxResults as last argument if specified
   if (maxResults !== undefined) {
-    safeArgs.unshift(String(maxResults));
+    safeArgs.push(String(maxResults));
   }
   
   // Build command with proper escaping
