@@ -39,6 +39,9 @@ export async function executeThingsURL(
       } else if (key === 'todos') {
         const sanitized = value.map(v => sanitizeForUrl(String(v)));
         paramString = `to-dos=${encodeURIComponent(sanitized.join('\n'))}`;
+      } else if (key === 'headings') {
+        // Skip headings in simple URL scheme - they need JSON command
+        continue;
       } else if (key === 'filter') {
         const sanitized = value.map(v => sanitizeForUrl(String(v)));
         paramString = `filter=${encodeURIComponent(sanitized.join(','))}`;
@@ -77,6 +80,45 @@ export async function executeThingsURL(
       `Failed to execute Things URL: ${error}`,
       'URL_EXECUTION_FAILED',
       { command, error: String(error) }
+    );
+  }
+}
+
+export async function executeThingsJSON(jsonData: Record<string, unknown>[]): Promise<void> {
+  // Add auth token to each item if required
+  const processedData = jsonData.map(item => {
+    if (requiresAuth('add-json')) {
+      return {
+        ...item,
+        attributes: {
+          ...(item.attributes as Record<string, unknown>),
+          'auth-token': getAuthToken()
+        }
+      };
+    }
+    return item;
+  });
+
+  const jsonString = JSON.stringify(processedData);
+  const encodedData = encodeURIComponent(jsonString);
+  const url = `things:///add-json?data=${encodedData}`;
+  
+  // Check URL length
+  if (url.length > MAX_URL_LENGTH * 4) { // JSON URLs can be longer
+    throw new ThingsError(
+      'JSON data too large for URL. Consider creating fewer items at once.',
+      'JSON_TOO_LARGE',
+      { length: url.length }
+    );
+  }
+  
+  try {
+    await execAsync(`open "${url}"`, { timeout: 10000 });
+  } catch (error) {
+    throw new ThingsError(
+      `Failed to execute Things JSON: ${error}`,
+      'JSON_EXECUTION_FAILED',
+      { error: String(error) }
     );
   }
 }

@@ -33,6 +33,37 @@ export const AddTodoSchema = z.object({
   canceled: z.boolean().optional(),
 });
 
+const HeadingSchema = z.object({
+  title: z.string().min(1, 'Heading title is required').max(255, 'Heading title too long'),
+  archived: z.boolean().optional().default(false),
+});
+
+const ChecklistItemSchema = z.object({
+  title: z.string().min(1, 'Checklist item title is required').max(255, 'Title too long'),
+  completed: z.boolean().optional().default(false),
+});
+
+const TodoItemSchema = z.object({
+  type: z.literal('todo'),
+  title: z.string().min(1, 'Todo title is required').max(255, 'Title too long'),
+  notes: z.string().max(10000, 'Notes too long').optional(),
+  when: z.union([WhenEnum, DateString, DateTimeString]).optional(),
+  deadline: DateString.optional(),
+  tags: z.array(z.string().max(50)).max(20, 'Too many tags').optional(),
+  completed: z.boolean().optional(),
+  canceled: z.boolean().optional(),
+  checklist: z.array(ChecklistItemSchema).max(100, 'Too many checklist items').optional(),
+});
+
+const HeadingItemSchema = z.object({
+  type: z.literal('heading'),
+  title: z.string().min(1, 'Heading title is required').max(255, 'Title too long'),
+  archived: z.boolean().optional().default(false),
+  items: z.array(TodoItemSchema).max(100, 'Too many todos in heading').optional(),
+});
+
+const ProjectItemSchema = z.discriminatedUnion('type', [TodoItemSchema, HeadingItemSchema]);
+
 export const AddProjectSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255, 'Title too long'),
   notes: z.string().max(10000, 'Notes too long').optional(),
@@ -42,6 +73,8 @@ export const AddProjectSchema = z.object({
   area_id: z.string().optional(),
   area: z.string().max(255).optional(),
   todos: z.array(z.string().max(255)).max(100, 'Too many todos').optional(),
+  headings: z.array(HeadingSchema).max(50, 'Too many headings').optional(),
+  items: z.array(ProjectItemSchema).max(200, 'Too many items').optional(),
   completed: z.boolean().optional(),
   canceled: z.boolean().optional(),
 });

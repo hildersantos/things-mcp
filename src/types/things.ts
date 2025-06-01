@@ -22,6 +22,38 @@ export interface ThingsTodoDetails {
   project?: string;
 }
 
+export interface ThingsHeading {
+  title: string;
+  archived?: boolean;
+}
+
+// New hierarchical structure types
+export interface ChecklistItem {
+  title: string;
+  completed?: boolean;
+}
+
+export interface TodoItem {
+  type: 'todo';
+  title: string;
+  notes?: string;
+  when?: WhenLiteral | DateString | DateTimeString;
+  deadline?: DateString;
+  tags?: string[];
+  completed?: boolean;
+  canceled?: boolean;
+  checklist?: ChecklistItem[];
+}
+
+export interface HeadingItem {
+  type: 'heading';
+  title: string;
+  archived?: boolean;
+  items?: TodoItem[];
+}
+
+export type ProjectItem = TodoItem | HeadingItem;
+
 export interface ThingsProject {
   id: string;
   name: string;
@@ -74,7 +106,9 @@ export interface AddProjectParams {
   tags?: string[];
   area_id?: string;
   area?: string;
-  todos?: string[];
+  todos?: string[]; // Deprecated - use items instead
+  headings?: ThingsHeading[]; // Deprecated - use items instead
+  items?: ProjectItem[]; // New hierarchical structure
   completed?: boolean;
   canceled?: boolean;
 }

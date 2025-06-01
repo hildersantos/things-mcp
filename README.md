@@ -72,6 +72,49 @@ Use things_add_todo to create a task called "Buy milk" for today with tag "erran
 Use things_add_project to create a project "Website Redesign" in area "Work" with tasks "Design mockups" and "Implement frontend"
 ```
 
+### Create a Project with Headings (Legacy)
+```
+Use things_add_project to create a project "Vacation Planning" with headings "Travel" and "Accommodation" and tasks "Book flights" and "Find hotel"
+```
+
+### Create a Hierarchical Project (New!)
+```
+Use things_add_project with hierarchical structure:
+{
+  "title": "Website Redesign",
+  "area": "Work",
+  "items": [
+    {
+      "type": "heading",
+      "title": "Research Phase",
+      "items": [
+        {
+          "type": "todo",
+          "title": "Analyze competitors",
+          "notes": "Focus on UX patterns",
+          "when": "today"
+        },
+        {
+          "type": "todo",
+          "title": "User surveys",
+          "deadline": "2025-01-20",
+          "checklist": [
+            { "title": "Create questions" },
+            { "title": "Send to users" },
+            { "title": "Analyze results" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "todo",
+      "title": "Get stakeholder approval",
+      "notes": "Final step"
+    }
+  ]
+}
+```
+
 ### Update a To-Do
 ```
 Use things_update_todo to mark task ABC-123 as completed
@@ -104,9 +147,9 @@ Use things_get_todo_details with id "TBeaUrcGH1zKoMmS7wwHVD" to get full details
 
 ## Available Tools
 
-### Creation Tools (URL Scheme)
+### Creation Tools (URL Scheme & JSON)
 - `things_add_todo` - Create a to-do with all options
-- `things_add_project` - Create a project with to-dos
+- `things_add_project` - Create a project with to-dos and headings (supports JSON format for headings)
 
 ### Update Tools (URL Scheme - requires auth token)
 - `things_update_todo` - Update an existing to-do
