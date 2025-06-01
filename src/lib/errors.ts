@@ -64,10 +64,38 @@ export class ThingsTimeoutError extends ThingsError {
 
 export class ThingsScriptError extends ThingsError {
   constructor(scriptName: string, error: string) {
+    // Parse common error patterns for better user messages
+    const userMessage = ThingsScriptError.parseErrorMessage(error, scriptName);
+    
     super(
-      `AppleScript execution failed: ${scriptName}`,
+      userMessage,
       'SCRIPT_ERROR',
       { scriptName, error }
     );
+  }
+
+  private static parseErrorMessage(error: string, scriptName: string): string {
+    // Extract the actual error message from AppleScript stderr
+    // Format: /path/to/script.applescript:line:char: execution error: <actual message> (code)
+    const errorMatch = error.match(/execution error:\s*(.+?)\s*\(-?\d+\)/);
+    
+    if (errorMatch) {
+      const message = errorMatch[1];
+      
+      // Check for common patterns and provide user-friendly messages
+      if (message.includes('not found:')) {
+        return message; // Already user-friendly
+      }
+      
+      if (message.includes('Things3 is not running')) {
+        return 'Things 3 is not running. Please open Things 3 and try again.';
+      }
+      
+      // For other messages, return as-is
+      return message;
+    }
+    
+    // Fallback to generic message if we can't parse
+    return `AppleScript execution failed: ${scriptName}`;
   }
 }

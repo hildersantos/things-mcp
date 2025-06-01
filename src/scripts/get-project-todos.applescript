@@ -44,17 +44,14 @@ on run argv
                 -- Project todos don't have separate area
                 set todoArea to ""
                 
-                -- Get tag names
+                -- Get tag names (using built-in property)
                 set todoTags to ""
-                if (count of tags of toDo) > 0 then
-                    set tagNames to {}
-                    repeat with aTag in tags of toDo
-                        set end of tagNames to name of aTag
-                    end repeat
-                    set AppleScript's text item delimiters to ","
-                    set todoTags to tagNames as string
-                    set AppleScript's text item delimiters to ""
-                end if
+                try
+                    set todoTags to tag names of toDo
+                    if todoTags is missing value then set todoTags to ""
+                on error
+                    set todoTags to ""
+                end try
                 
                 -- Build output line
                 set output to output & todoId & "|" & todoName & "|" & todoArea & "|" & todoTags & linefeed

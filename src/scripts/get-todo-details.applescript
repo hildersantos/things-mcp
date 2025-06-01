@@ -59,15 +59,12 @@ on run argv
         
         -- Get tag names
         set todoTags to ""
-        if (count of tags of targetTodo) > 0 then
-            set tagNames to {}
-            repeat with aTag in tags of targetTodo
-                set end of tagNames to name of aTag
-            end repeat
-            set AppleScript's text item delimiters to ","
-            set todoTags to tagNames as string
-            set AppleScript's text item delimiters to ""
-        end if
+        try
+            set todoTags to tag names of targetTodo
+            if todoTags is missing value then set todoTags to ""
+        on error
+            set todoTags to ""
+        end try
         
         -- Get deadline
         set todoDeadline to ""
@@ -77,31 +74,45 @@ on run argv
         
         -- Get scheduled date
         set todoScheduledDate to ""
-        if scheduled date of targetTodo is not missing value then
-            set todoScheduledDate to (scheduled date of targetTodo) as string
-        end if
+        try
+            set scheduledDateProp to activation date of targetTodo
+            if scheduledDateProp is not missing value then
+                set todoScheduledDate to scheduledDateProp as string
+            end if
+        on error
+            -- Property might not exist or be named differently
+        end try
         
         -- Get status
         set todoStatus to ""
-        if status of targetTodo is open then
-            set todoStatus to "open"
-        else if status of targetTodo is completed then
-            set todoStatus to "completed"
-        else if status of targetTodo is canceled then
-            set todoStatus to "canceled"
-        end if
+        try
+            set todoStatusValue to status of targetTodo as string
+            set todoStatus to todoStatusValue
+        on error
+            set todoStatus to "unknown"
+        end try
         
         -- Get creation date
         set todoCreationDate to ""
-        if creation date of targetTodo is not missing value then
-            set todoCreationDate to (creation date of targetTodo) as string
-        end if
+        try
+            set creationDateProp to creation date of targetTodo
+            if creationDateProp is not missing value then
+                set todoCreationDate to creationDateProp as string
+            end if
+        on error
+            -- Property might not exist
+        end try
         
         -- Get completion date
         set todoCompletionDate to ""
-        if completion date of targetTodo is not missing value then
-            set todoCompletionDate to (completion date of targetTodo) as string
-        end if
+        try
+            set completionDateProp to completion date of targetTodo
+            if completionDateProp is not missing value then
+                set todoCompletionDate to completionDateProp as string
+            end if
+        on error
+            -- Property might not exist
+        end try
         
         -- Get project name if todo is in a project
         set todoProject to ""

@@ -48,15 +48,12 @@ on run argv
                     
                     -- Get tag names
                     set todoTags to ""
-                    if (count of tags of toDo) > 0 then
-                        set tagNames to {}
-                        repeat with aTag in tags of toDo
-                            set end of tagNames to name of aTag
-                        end repeat
-                        set AppleScript's text item delimiters to ","
-                        set todoTags to tagNames as string
-                        set AppleScript's text item delimiters to ""
-                    end if
+                    try
+                        set todoTags to tag names of toDo
+                        if todoTags is missing value then set todoTags to ""
+                    on error
+                        set todoTags to ""
+                    end try
                     
                     -- Build output line
                     set output to output & todoId & "|" & todoName & "|" & todoArea & "|" & todoTags & linefeed
@@ -87,15 +84,12 @@ on run argv
                         
                         -- Get tag names
                         set projTags to ""
-                        if (count of tags of proj) > 0 then
-                            set tagNames to {}
-                            repeat with aTag in tags of proj
-                                set end of tagNames to name of aTag
-                            end repeat
-                            set AppleScript's text item delimiters to ","
-                            set projTags to tagNames as string
-                            set AppleScript's text item delimiters to ""
-                        end if
+                        try
+                            set projTags to tag names of proj
+                            if projTags is missing value then set projTags to ""
+                        on error
+                            set projTags to ""
+                        end try
                         
                         -- Build output line
                         set output to output & projId & "|" & projName & "|" & projArea & "|" & projTags & linefeed
