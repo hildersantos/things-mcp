@@ -1,10 +1,10 @@
 import { executeAppleScriptFile } from '../lib/applescript.js';
 import { parseTodoList, parseProjectList, parseAreaList, parseTagList } from '../lib/parser.js';
-import { GetProjectSchema, GetAreaSchema, GetListSchema } from '../types/mcp.js';
+import { GetProjectSchema, GetAreaSchema, GetListSchema, GetListByNameSchema } from '../types/mcp.js';
 import { AbstractToolHandler, ToolDefinition } from '../lib/abstract-tool-handler.js';
 import { z } from 'zod';
 
-type GetParams = z.infer<typeof GetListSchema> | z.infer<typeof GetProjectSchema> | z.infer<typeof GetAreaSchema>;
+type GetParams = z.infer<typeof GetListSchema> | z.infer<typeof GetProjectSchema> | z.infer<typeof GetAreaSchema> | z.infer<typeof GetListByNameSchema>;
 
 class GetToolHandler extends AbstractToolHandler<GetParams> {
   protected definitions: ToolDefinition<GetParams>[] = [
@@ -34,6 +34,16 @@ class GetToolHandler extends AbstractToolHandler<GetParams> {
       schema: GetListSchema
     },
     {
+      name: 'things_get_logbook',
+      description: 'Get all completed to-dos in the Logbook',
+      schema: GetListSchema
+    },
+    {
+      name: 'things_get_trash',
+      description: 'Get all deleted to-dos in the Trash',
+      schema: GetListSchema
+    },
+    {
       name: 'things_get_projects',
       description: 'Get all active projects',
       schema: GetListSchema
@@ -57,6 +67,11 @@ class GetToolHandler extends AbstractToolHandler<GetParams> {
       name: 'things_get_area',
       description: 'Get all items in a specific area',
       schema: GetAreaSchema
+    },
+    {
+      name: 'things_get_list',
+      description: 'Get all to-dos from a specific list by name',
+      schema: GetListByNameSchema
     }
   ];
 
@@ -66,6 +81,8 @@ class GetToolHandler extends AbstractToolHandler<GetParams> {
     'things_get_upcoming': 'get-upcoming',
     'things_get_anytime': 'get-anytime',
     'things_get_someday': 'get-someday',
+    'things_get_logbook': 'get-logbook',
+    'things_get_trash': 'get-trash',
     'things_get_projects': 'get-projects',
     'things_get_areas': 'get-areas',
     'things_get_tags': 'get-tags',
@@ -73,10 +90,31 @@ class GetToolHandler extends AbstractToolHandler<GetParams> {
     'things_get_area': 'get-area-items'
   };
 
+  private listNameToScript: Record<string, string> = {
+    'inbox': 'get-inbox',
+    'today': 'get-today',
+    'upcoming': 'get-upcoming',
+    'anytime': 'get-anytime',
+    'someday': 'get-someday',
+    'logbook': 'get-logbook',
+    'trash': 'get-trash'
+  };
+
   async execute(toolName: string, params: GetParams): Promise<string> {
-    const scriptName = this.scriptMap[toolName];
-    if (!scriptName) {
-      throw new Error(`Unknown tool: ${toolName}`);
+    let scriptName: string;
+    
+    // Handle the get_list tool separately
+    if (toolName === 'things_get_list') {
+      const listParams = params as z.infer<typeof GetListByNameSchema>;
+      scriptName = this.listNameToScript[listParams.list];
+      if (!scriptName) {
+        throw new Error(`Unknown list: ${listParams.list}`);
+      }
+    } else {
+      scriptName = this.scriptMap[toolName];
+      if (!scriptName) {
+        throw new Error(`Unknown tool: ${toolName}`);
+      }
     }
     
     let scriptArgs: string[] = [];
