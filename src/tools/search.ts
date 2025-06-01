@@ -1,54 +1,33 @@
-import { Tool } from '@modelcontextprotocol/sdk/types.js';
-import { z } from 'zod';
 import { executeThingsURL } from '../lib/urlscheme.js';
 import { SearchSchema } from '../types/mcp.js';
-import { ThingsError } from '../lib/errors.js';
+import { AbstractToolHandler, ToolDefinition } from '../lib/abstract-tool-handler.js';
+import { z } from 'zod';
 
-export const searchTools: Tool[] = [
-  {
-    name: 'things_search',
-    description: 'Search in Things',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        query: { 
-          type: 'string', 
-          description: 'Search query (leave empty to just open search)' 
-        }
-      }
+type SearchParams = z.infer<typeof SearchSchema>;
+
+class SearchToolHandler extends AbstractToolHandler<SearchParams> {
+  protected definitions: ToolDefinition<SearchParams>[] = [
+    {
+      name: 'things_search',
+      description: 'Search in Things',
+      schema: SearchSchema
     }
-  }
-];
+  ];
 
-export async function handleSearch(toolName: string, args: unknown): Promise<unknown> {
-  try {
+  async execute(toolName: string, params: SearchParams): Promise<string> {
     if (toolName !== 'things_search') {
       throw new Error(`Unknown tool: ${toolName}`);
     }
     
-    const params = SearchSchema.parse(args);
     await executeThingsURL('search', params);
     
-    const message = params.query 
+    return params.query 
       ? `🔍 Search opened with query: "${params.query}"`
       : '🔍 Search opened in Things';
-    
-    return {
-      content: [
-        {
-          type: "text",
-          text: message
-        }
-      ]
-    };
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      throw new ThingsError(
-        'Invalid parameters',
-        'VALIDATION_ERROR',
-        error.errors
-      );
-    }
-    throw error;
   }
 }
+
+export const searchToolHandler = new SearchToolHandler();
+
+export const searchTools = searchToolHandler.tools;
+export const handleSearch = searchToolHandler.handle.bind(searchToolHandler);

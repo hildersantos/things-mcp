@@ -1,45 +1,20 @@
 #!/usr/bin/env node
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { CallToolRequestSchema, ListToolsRequestSchema, CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 
-import { addTools, handleAdd } from './tools/add.js';
-import { getTools, handleGet } from './tools/get.js';
-import { showTools, handleShow } from './tools/show.js';
-import { searchTools, handleSearch } from './tools/search.js';
+import { addToolHandler } from './tools/add.js';
+import { getToolHandler } from './tools/get.js';
+import { showToolHandler } from './tools/show.js';
+import { searchToolHandler } from './tools/search.js';
 import { testThingsAvailable } from './lib/applescript.js';
-import { ThingsError } from './lib/errors.js';
+import { toolRegistry } from './lib/tool-registry.js';
 
-// Combine all tools
-const allTools = [
-  ...addTools,
-  ...getTools,
-  ...showTools,
-  ...searchTools
-];
-
-// Create tool handler map for efficient routing
-const toolHandlers = new Map<string, (args: any) => Promise<any>>();
-
-// Register add handlers
-addTools.forEach(tool => {
-  toolHandlers.set(tool.name, (args) => handleAdd(tool.name, args));
-});
-
-// Register get handlers
-getTools.forEach(tool => {
-  toolHandlers.set(tool.name, (args) => handleGet(tool.name, args));
-});
-
-// Register show handlers
-showTools.forEach(tool => {
-  toolHandlers.set(tool.name, (args) => handleShow(tool.name, args));
-});
-
-// Register search handlers
-searchTools.forEach(tool => {
-  toolHandlers.set(tool.name, (args) => handleSearch(tool.name, args));
-});
+// Register all tool handlers
+toolRegistry.registerToolHandler(addToolHandler);
+toolRegistry.registerToolHandler(getToolHandler);
+toolRegistry.registerToolHandler(showToolHandler);
+toolRegistry.registerToolHandler(searchToolHandler);
 
 // Create MCP server
 const server = new Server(
@@ -57,43 +32,27 @@ const server = new Server(
 // Handler for listing tools
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
-    tools: allTools,
+    tools: toolRegistry.getAllTools(),
   };
 });
 
 // Handler for executing tools
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
+server.setRequestHandler(CallToolRequestSchema, async (request): Promise<CallToolResult> => {
   const { name, arguments: args } = request.params;
   
   try {
-    const handler = toolHandlers.get(name);
-    if (!handler) {
-      throw new ThingsError(
-        `Unknown tool: ${name}`,
-        'UNKNOWN_TOOL'
-      );
-    }
-    
-    return await handler(args || {});
+    return await toolRegistry.executeHandler(name, args || {});
   } catch (error) {
-    // Transform errors to a consistent format
-    if (error instanceof ThingsError) {
-      throw error;
-    }
-    
-    if (error instanceof Error) {
-      throw new ThingsError(
-        error.message,
-        'EXECUTION_ERROR',
-        { originalError: error.toString() }
-      );
-    }
-    
-    throw new ThingsError(
-      'An unexpected error occurred',
-      'UNKNOWN_ERROR',
-      { error: String(error) }
-    );
+    // Fallback error handling for unexpected registry errors
+    return {
+      isError: true,
+      content: [
+        {
+          type: "text",
+          text: error instanceof Error ? error.message : 'An unexpected error occurred'
+        }
+      ]
+    };
   }
 });
 
