@@ -117,3 +117,7 @@ export const UpdateProjectSchema = z.object({
   completed: z.boolean().optional(),
   canceled: z.boolean().optional(),
 });
+
+export const GetTodoDetailsSchema = z.object({
+  id: z.string().min(1, 'Todo ID is required').describe('ID of the to-do to get detailed information for'),
+});

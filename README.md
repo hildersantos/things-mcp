@@ -97,6 +97,11 @@ Use things_show to open my Today list
 Use things_get_list with list "logbook" to see completed tasks
 ```
 
+### Get Detailed Task Information
+```
+Use things_get_todo_details with id "TBeaUrcGH1zKoMmS7wwHVD" to get full details including deadline, notes, status
+```
+
 ## Available Tools
 
 ### Creation Tools (URL Scheme)
@@ -121,6 +126,7 @@ Use things_get_list with list "logbook" to see completed tasks
 - `things_get_project` - List items in a specific project (requires project_id)
 - `things_get_area` - List items in a specific area (requires area_id)
 - `things_get_list` - Get items from a specific list by name
+- `things_get_todo_details` - Get detailed information about a specific to-do including deadline, notes, status, etc.
 
 All list tools support an optional `max_results` parameter to limit output.
 

@@ -8,6 +8,20 @@ export interface ThingsTodo {
   tags: string[];
 }
 
+export interface ThingsTodoDetails {
+  id: string;
+  name: string;
+  area?: string;
+  tags: string[];
+  deadline?: string;
+  scheduledDate?: string;
+  notes?: string;
+  status: 'open' | 'completed' | 'canceled';
+  creationDate?: string;
+  completionDate?: string;
+  project?: string;
+}
+
 export interface ThingsProject {
   id: string;
   name: string;

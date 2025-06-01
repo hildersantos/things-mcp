@@ -1,10 +1,10 @@
 import { executeAppleScriptFile } from '../lib/applescript.js';
-import { parseTodoList, parseProjectList, parseAreaList, parseTagList } from '../lib/parser.js';
-import { GetProjectSchema, GetAreaSchema, GetListSchema, GetListByNameSchema } from '../types/mcp.js';
+import { parseTodoList, parseProjectList, parseAreaList, parseTagList, parseTodoDetails } from '../lib/parser.js';
+import { GetProjectSchema, GetAreaSchema, GetListSchema, GetListByNameSchema, GetTodoDetailsSchema } from '../types/mcp.js';
 import { AbstractToolHandler, ToolDefinition } from '../lib/abstract-tool-handler.js';
 import { z } from 'zod';
 
-type GetParams = z.infer<typeof GetListSchema> | z.infer<typeof GetProjectSchema> | z.infer<typeof GetAreaSchema> | z.infer<typeof GetListByNameSchema>;
+type GetParams = z.infer<typeof GetListSchema> | z.infer<typeof GetProjectSchema> | z.infer<typeof GetAreaSchema> | z.infer<typeof GetListByNameSchema> | z.infer<typeof GetTodoDetailsSchema>;
 
 class GetToolHandler extends AbstractToolHandler<GetParams> {
   protected definitions: ToolDefinition<GetParams>[] = [
@@ -72,6 +72,11 @@ class GetToolHandler extends AbstractToolHandler<GetParams> {
       name: 'things_get_list',
       description: 'Get all to-dos from a specific list by name',
       schema: GetListByNameSchema
+    },
+    {
+      name: 'things_get_todo_details',
+      description: 'Get detailed information about a specific to-do including deadline, notes, status, etc.',
+      schema: GetTodoDetailsSchema
     }
   ];
 
@@ -87,7 +92,8 @@ class GetToolHandler extends AbstractToolHandler<GetParams> {
     'things_get_areas': 'get-areas',
     'things_get_tags': 'get-tags',
     'things_get_project': 'get-project-todos',
-    'things_get_area': 'get-area-items'
+    'things_get_area': 'get-area-items',
+    'things_get_todo_details': 'get-todo-details'
   };
 
   private listNameToScript: Record<string, string> = {
@@ -118,7 +124,7 @@ class GetToolHandler extends AbstractToolHandler<GetParams> {
     }
     
     let scriptArgs: string[] = [];
-    const options = { maxResults: params.max_results };
+    const options = { maxResults: (params as any).max_results };
     
     // Handle specific tools that need arguments
     if (toolName === 'things_get_project') {
@@ -127,6 +133,11 @@ class GetToolHandler extends AbstractToolHandler<GetParams> {
     } else if (toolName === 'things_get_area') {
       const areaParams = params as z.infer<typeof GetAreaSchema>;
       scriptArgs = [areaParams.area_id];
+    } else if (toolName === 'things_get_todo_details') {
+      const todoParams = params as z.infer<typeof GetTodoDetailsSchema>;
+      scriptArgs = [todoParams.id];
+      // Don't pass maxResults for todo details since it's a single item
+      delete options.maxResults;
     }
     
     const output = await executeAppleScriptFile(scriptName, scriptArgs, options);
@@ -150,6 +161,9 @@ class GetToolHandler extends AbstractToolHandler<GetParams> {
         break;
       case 'things_get_tags':
         result = { tags: parseTagList(output) };
+        break;
+      case 'things_get_todo_details':
+        result = parseTodoDetails(output);
         break;
       default:
         result = { todos: parseTodoList(output) };
