@@ -1,18 +1,17 @@
 # Things MCP
 
-A secure and robust MCP (Model Context Protocol) server for Things 3 integration. Enables Claude Desktop and Claude Code to interact with Things 3 on macOS.
+A Model Context Protocol (MCP) server for Things 3 integration. Enables Claude Desktop and Claude Code to interact with Things 3 on macOS.
 
 ## Features
 
-- ✅ Create to-dos and projects with full metadata
-- ✅ Update existing to-dos and projects
-- ✅ List items from any Things list (Inbox, Today, Logbook, Trash, etc.)
-- ✅ Retrieve all projects, areas, and tags
-- ✅ Navigate to specific items or lists
-- ✅ Search within Things
-- 🔒 Secure AppleScript execution
-- 🚀 Optimized performance with configurable limits
-- 🛡️ Comprehensive error handling
+- Create to-dos and projects with full metadata
+- Update existing to-dos and projects
+- List items from any Things list (Inbox, Today, Logbook, Trash, etc.)
+- Retrieve all projects, areas, and tags
+- Navigate to specific items or lists
+- Search within Things
+- Secure AppleScript execution
+- Comprehensive error handling
 
 ## Requirements
 
@@ -72,12 +71,7 @@ Use things_add_todo to create a task called "Buy milk" for today with tag "erran
 Use things_add_project to create a project "Website Redesign" in area "Work" with tasks "Design mockups" and "Implement frontend"
 ```
 
-### Create a Project with Headings (Legacy)
-```
-Use things_add_project to create a project "Vacation Planning" with headings "Travel" and "Accommodation" and tasks "Book flights" and "Find hotel"
-```
-
-### Create a Hierarchical Project (New!)
+### Create a Hierarchical Project
 ```
 Use things_add_project with hierarchical structure:
 {
@@ -135,11 +129,6 @@ List all my projects using things_get_projects (this will show IDs you can use)
 Use things_show to open my Today list
 ```
 
-### Get List by Name
-```
-Use things_get_list with list "logbook" to see completed tasks
-```
-
 ### Get Detailed Task Information
 ```
 Use things_get_todo_details with id "TBeaUrcGH1zKoMmS7wwHVD" to get full details including deadline, notes, status
@@ -147,15 +136,15 @@ Use things_get_todo_details with id "TBeaUrcGH1zKoMmS7wwHVD" to get full details
 
 ## Available Tools
 
-### Creation Tools (URL Scheme & JSON)
+### Creation Tools
 - `things_add_todo` - Create a to-do with all options
-- `things_add_project` - Create a project with to-dos and headings (supports JSON format for headings)
+- `things_add_project` - Create a project with to-dos and headings
 
-### Update Tools (URL Scheme - requires auth token)
+### Update Tools (requires auth token)
 - `things_update_todo` - Update an existing to-do
 - `things_update_project` - Update an existing project
 
-### Reading Tools (AppleScript)
+### Reading Tools
 - `things_get_inbox` - List inbox items
 - `things_get_today` - List today's items
 - `things_get_upcoming` - List scheduled items
@@ -169,7 +158,7 @@ Use things_get_todo_details with id "TBeaUrcGH1zKoMmS7wwHVD" to get full details
 - `things_get_project` - List items in a specific project (requires project_id)
 - `things_get_area` - List items in a specific area (requires area_id)
 - `things_get_list` - Get items from a specific list by name
-- `things_get_todo_details` - Get detailed information about a specific to-do including deadline, notes, status, etc.
+- `things_get_todo_details` - Get detailed information about a specific to-do
 
 All list tools support an optional `max_results` parameter to limit output.
 
@@ -196,19 +185,6 @@ npm test
 npm run test:watch
 ```
 
-## Testing
-
-This project includes comprehensive test coverage:
-
-- **Unit Tests**: Core logic, parsers, validation, error handling
-- **Integration Tests**: Tool orchestration, MCP protocol compliance
-- **Mocked Dependencies**: AppleScript execution, file system operations
-
-Run tests with:
-```bash
-npm test
-```
-
 ## Troubleshooting
 
 ### "Things 3 does not appear to be running"
@@ -225,58 +201,6 @@ Use the `max_results` parameter when listing large collections:
 ```
 Use things_get_projects with max_results 10
 ```
-
-## Architecture
-
-### Core Components
-
-- **AbstractToolHandler**: Base class that eliminates code duplication across tool handlers
-- **ToolRegistry**: Centralized system for automatic tool discovery and registration
-- **Schema Utils**: Converts Zod schemas to JSON Schema format required by MCP
-- **URL Scheme Integration**: Secure parameter encoding for Things URL scheme
-- **AppleScript Execution**: Safe execution of AppleScript files with validation
-- **Error Handling**: Comprehensive error types with structured responses
-
-### Security Features
-
-- All AppleScript arguments are validated and sanitized
-- No string interpolation in AppleScript execution
-- Auth tokens are never logged
-- Input validation on all parameters
-- Secure error messages that don't expose internals
-
-## Internationalization
-
-This MCP uses English list names ("Inbox", "Today", etc.) which Things handles correctly on most systems. If you experience issues with non-English systems:
-
-1. Ensure Things is set to English, or
-2. Wait for a future update that uses list IDs
-
-Custom projects and areas work with any language as we reference them by ID.
-
-## Contributing
-
-Contributions are welcome! Please ensure:
-- All tests pass (`npm test`)
-- Code is properly formatted (`npm run format`)
-- Security considerations are addressed
-- Documentation is updated
-
-## Recent Updates
-
-- ✅ Added hierarchical project structure with nested todos in headings
-- ✅ Implemented `things_get_todo_details` for comprehensive task information
-- ✅ Consolidated URL scheme and JSON approaches, eliminating ~50 lines of duplicate code
-- ✅ Fixed AppleScript argument ordering issue in `things_get_project`
-- ✅ Added full attribute support for todos (notes, when, deadline, checklist)
-- ✅ Refactored codebase using AbstractToolHandler pattern
-- ✅ Implemented ToolRegistry for automatic tool discovery
-- ✅ Added comprehensive error handling with structured responses
-- ✅ Added support for Logbook and Trash lists
-- ✅ Implemented update operations for to-dos and projects
-- ✅ Added schema validation with Zod to JSON Schema conversion
-- ✅ Eliminated ~200 lines of duplicate code
-- ✅ Improved type safety throughout the codebase
 
 ## License
 
