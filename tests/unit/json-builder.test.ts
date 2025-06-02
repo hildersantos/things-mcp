@@ -56,7 +56,22 @@ describe('ThingsJSONBuilder', () => {
             when: 'today',
             deadline: '2025-01-15',
             tags: ['work', 'urgent'],
-            'checklist-items': ['Step 1', 'Step 2'],
+            'checklist-items': [
+              {
+                type: 'checklist-item',
+                attributes: {
+                  title: 'Step 1',
+                  completed: false
+                }
+              },
+              {
+                type: 'checklist-item',
+                attributes: {
+                  title: 'Step 2',
+                  completed: false
+                }
+              }
+            ],
             list: 'inbox',
             completed: false
           }
@@ -222,6 +237,112 @@ describe('ThingsJSONBuilder', () => {
       const attributes = call?.[0]?.attributes as Record<string, unknown>;
       
       expect(attributes.tags).toEqual(['tag1', 'tag2', 'tag3']);
+    });
+  });
+
+  describe('updateTodo', () => {
+    it('should update a to-do with operation field', async () => {
+      const params = {
+        id: 'todo-123',
+        title: 'Updated Todo',
+        notes: 'Updated notes'
+      };
+      
+      const result = await builder.updateTodo(params);
+      
+      expect(mockExecuteThingsJSON).toHaveBeenCalledWith([
+        {
+          type: 'to-do',
+          operation: 'update',
+          id: 'todo-123',
+          attributes: {
+            title: 'Updated Todo',
+            notes: 'Updated notes'
+          }
+        }
+      ]);
+      expect(result).toBe('✅ To-do updated successfully: "Updated Todo"');
+    });
+
+    it('should update a to-do without title', async () => {
+      const params = {
+        id: 'todo-123',
+        completed: true
+      };
+      
+      const result = await builder.updateTodo(params);
+      
+      expect(mockExecuteThingsJSON).toHaveBeenCalledWith([
+        {
+          type: 'to-do',
+          operation: 'update',
+          id: 'todo-123',
+          attributes: {
+            completed: true
+          }
+        }
+      ]);
+      expect(result).toBe('✅ To-do updated successfully: "Updated todo"');
+    });
+  });
+
+  describe('updateProject', () => {
+    it('should update a project', async () => {
+      const params = {
+        id: 'project-456',
+        title: 'Updated Project',
+        area: 'New Area'
+      };
+      
+      const result = await builder.updateProject(params);
+      
+      expect(mockExecuteThingsJSON).toHaveBeenCalledWith([
+        {
+          type: 'project',
+          operation: 'update',
+          id: 'project-456',
+          attributes: {
+            title: 'Updated Project',
+            area: 'New Area'
+          }
+        }
+      ]);
+      expect(result).toBe('✅ Project updated successfully: "Updated Project"');
+    });
+  });
+
+  describe('addItemsToProject', () => {
+    it('should add items to an existing project', async () => {
+      const params = {
+        id: 'project-789',
+        items: [
+          { type: 'heading' as const, title: 'New Phase' },
+          { type: 'todo' as const, title: 'New Task' }
+        ]
+      };
+      
+      const result = await builder.addItemsToProject(params);
+      
+      expect(mockExecuteThingsJSON).toHaveBeenCalledWith([
+        {
+          type: 'project',
+          operation: 'update',
+          id: 'project-789',
+          attributes: {
+            items: [
+              {
+                type: 'heading',
+                attributes: { title: 'New Phase', archived: false }
+              },
+              {
+                type: 'to-do',
+                attributes: { title: 'New Task' }
+              }
+            ]
+          }
+        }
+      ]);
+      expect(result).toBe('✅ Added 2 items to project successfully');
     });
   });
 });

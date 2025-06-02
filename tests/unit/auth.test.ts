@@ -75,16 +75,14 @@ describe('getAuthToken', () => {
 });
 
 describe('requiresAuth', () => {
-  it('should return true for commands that need authentication', () => {
-    expect(requiresAuth('update')).toBe(true);
-    expect(requiresAuth('update-project')).toBe(true);
-  });
-
-  it('should return false for commands that do not need authentication', () => {
+  it('should return false for all commands since auth is now handled by operation type', () => {
+    expect(requiresAuth('json')).toBe(false);
     expect(requiresAuth('add')).toBe(false);
     expect(requiresAuth('add-project')).toBe(false);
     expect(requiresAuth('show')).toBe(false);
     expect(requiresAuth('search')).toBe(false);
+    expect(requiresAuth('update')).toBe(false);
+    expect(requiresAuth('update-project')).toBe(false);
     expect(requiresAuth('any-other-command')).toBe(false);
   });
 });

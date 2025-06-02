@@ -1,4 +1,4 @@
-import { AddTodoParams, AddProjectParams, ProjectItem, TodoItem } from '../types/things.js';
+import { AddTodoParams, AddProjectParams, ProjectItem, TodoItem, UpdateTodoJSONParams, UpdateProjectJSONParams, AddItemsToProjectParams } from '../types/things.js';
 import { executeThingsJSON } from './urlscheme.js';
 
 /**
@@ -30,6 +30,55 @@ export class ThingsJSONBuilder {
     return itemCount > 0
       ? `✅ Project created successfully: "${params.title}" (${itemCount} items)`
       : `✅ Project created successfully: "${params.title}"`;
+  }
+
+  /**
+   * Update an existing to-do using JSON API
+   */
+  async updateTodo(params: UpdateTodoJSONParams): Promise<string> {
+    const updateData = {
+      type: 'to-do',
+      operation: 'update',
+      id: params.id,
+      attributes: this.convertTodoParams(params)
+    };
+    
+    await executeThingsJSON([updateData]);
+    return `✅ To-do updated successfully: "${params.title || 'Updated todo'}"`;
+  }
+
+  /**
+   * Update an existing project using JSON API
+   */
+  async updateProject(params: UpdateProjectJSONParams): Promise<string> {
+    const updateData = {
+      type: 'project',
+      operation: 'update',
+      id: params.id,
+      attributes: this.convertProjectParams(params)
+    };
+    
+    await executeThingsJSON([updateData]);
+    return `✅ Project updated successfully: "${params.title || 'Updated project'}"`;
+  }
+
+  /**
+   * Add items to an existing project using JSON API
+   */
+  async addItemsToProject(params: AddItemsToProjectParams): Promise<string> {
+    const projectItems = this.buildHierarchicalItems(params.items);
+    
+    const updateData = {
+      type: 'project',
+      operation: 'update',
+      id: params.id,
+      attributes: {
+        items: projectItems
+      }
+    };
+    
+    await executeThingsJSON([updateData]);
+    return `✅ Added ${params.items.length} items to project successfully`;
   }
 
   /**
@@ -139,7 +188,15 @@ export class ThingsJSONBuilder {
       ...(params.when && { when: params.when }),
       ...(params.deadline && { deadline: params.deadline }),
       ...(params.tags && params.tags.length > 0 && { tags: params.tags }), // JSON expects array, not string
-      ...(params.checklist_items && { 'checklist-items': params.checklist_items }),
+      ...(params.checklist_items && params.checklist_items.length > 0 && { 
+        'checklist-items': params.checklist_items.map(item => ({
+          type: 'checklist-item',
+          attributes: {
+            title: item,
+            completed: false
+          }
+        }))
+      }),
       ...(params.list_id && { 'list-id': params.list_id }),
       ...(params.list && { list: params.list }),
       ...(params.heading && { heading: params.heading }),
