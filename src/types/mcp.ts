@@ -19,16 +19,17 @@ const DateTimeString = z
 export const AddTodoSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255, 'Title too long'),
   notes: z.string().max(10000, 'Notes too long').optional(),
-  when: z.union([WhenEnum, DateString, DateTimeString]).optional(),
+  when: z.union([WhenEnum, DateString, DateTimeString]).optional().describe('Schedule the todo: today/tomorrow/evening (relative), anytime/someday (Things categories), YYYY-MM-DD (specific date), or YYYY-MM-DD@HH:MM (specific time)'),
   deadline: DateString.optional(),
   tags: z.array(z.string().max(50)).max(20, 'Too many tags').optional(),
   checklist_items: z
     .array(z.string().max(255))
     .max(100, 'Too many checklist items')
-    .optional(),
-  list_id: z.string().optional(),
-  list: z.string().max(255).optional(),
-  heading: z.string().max(255).optional(),
+    .optional()
+    .describe('Create a checklist within this todo with these items'),
+  list_id: z.string().optional().describe('ID of the project or area to add the todo to'),
+  list: z.string().max(255).optional().describe('Name of the project, area, or built-in list (inbox, today, anytime, etc.)'),
+  heading: z.string().max(255).optional().describe('Place this todo under a specific heading within the project'),
   completed: z.boolean().optional(),
   canceled: z.boolean().optional(),
 });
@@ -47,12 +48,12 @@ const TodoItemSchema = z.object({
   type: z.literal('todo'),
   title: z.string().min(1, 'Todo title is required').max(255, 'Title too long'),
   notes: z.string().max(10000, 'Notes too long').optional(),
-  when: z.union([WhenEnum, DateString, DateTimeString]).optional(),
+  when: z.union([WhenEnum, DateString, DateTimeString]).optional().describe('Schedule the todo: today/tomorrow/evening (relative), anytime/someday (Things categories), YYYY-MM-DD (specific date), or YYYY-MM-DD@HH:MM (specific time)'),
   deadline: DateString.optional(),
   tags: z.array(z.string().max(50)).max(20, 'Too many tags').optional(),
   completed: z.boolean().optional(),
   canceled: z.boolean().optional(),
-  checklist: z.array(ChecklistItemSchema).max(100, 'Too many checklist items').optional(),
+  checklist: z.array(ChecklistItemSchema).max(100, 'Too many checklist items').optional().describe('Structured checklist with individual item completion status (used in project items)'),
 });
 
 const HeadingItemSchema = z.object({
@@ -67,14 +68,14 @@ const ProjectItemSchema = z.discriminatedUnion('type', [TodoItemSchema, HeadingI
 export const AddProjectSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255, 'Title too long'),
   notes: z.string().max(10000, 'Notes too long').optional(),
-  when: z.union([WhenEnum, DateString, DateTimeString]).optional(),
+  when: z.union([WhenEnum, DateString, DateTimeString]).optional().describe('Schedule the todo: today/tomorrow/evening (relative), anytime/someday (Things categories), YYYY-MM-DD (specific date), or YYYY-MM-DD@HH:MM (specific time)'),
   deadline: DateString.optional(),
   tags: z.array(z.string().max(50)).max(20, 'Too many tags').optional(),
-  area_id: z.string().optional(),
-  area: z.string().max(255).optional(),
-  todos: z.array(z.string().max(255)).max(100, 'Too many todos').optional(),
-  headings: z.array(HeadingSchema).max(50, 'Too many headings').optional(),
-  items: z.array(ProjectItemSchema).max(200, 'Too many items').optional(),
+  area_id: z.string().optional().describe('ID of the area to place the project in'),
+  area: z.string().max(255).optional().describe('Name of the area to place the project in'),
+  todos: z.array(z.string().max(255)).max(100, 'Too many todos').optional().describe('Simple todo titles (strings only). Use this for basic todos without complex structure'),
+  headings: z.array(HeadingSchema).max(50, 'Too many headings').optional().describe('DEPRECATED: Use items array instead for better structure'),
+  items: z.array(ProjectItemSchema).max(200, 'Too many items').optional().describe('Structured todos and headings with full properties. Preferred over todos/headings fields'),
   completed: z.boolean().optional(),
   canceled: z.boolean().optional(),
 });
@@ -103,50 +104,51 @@ export const GetListByNameSchema = z.object({
     'logbook',
     'trash',
   ]),
-  max_results: z.number().optional(),
+  max_results: z.number().optional().describe('Limit number of results returned (defaults to all if not specified)'),
 });
 
 export const GetProjectSchema = z.object({
   project_id: z.string().min(1, 'Project ID is required'),
-  max_results: z.number().optional(),
+  max_results: z.number().optional().describe('Limit number of results returned (defaults to all if not specified)'),
 });
 
 export const GetAreaSchema = z.object({
   area_id: z.string().min(1, 'Area ID is required'),
-  max_results: z.number().optional(),
+  max_results: z.number().optional().describe('Limit number of results returned (defaults to all if not specified)'),
 });
 
 export const GetListSchema = z.object({
-  max_results: z.number().optional(),
+  max_results: z.number().optional().describe('Limit number of results returned (defaults to all if not specified)'),
 });
 
 export const UpdateTodoSchema = z.object({
   id: z.string().min(1, 'ID is required'),
   title: z.string().min(1, 'Title is required').max(255, 'Title too long').optional(),
   notes: z.string().max(10000, 'Notes too long').optional(),
-  when: z.union([WhenEnum, DateString, DateTimeString]).optional(),
+  when: z.union([WhenEnum, DateString, DateTimeString]).optional().describe('Schedule the todo: today/tomorrow/evening (relative), anytime/someday (Things categories), YYYY-MM-DD (specific date), or YYYY-MM-DD@HH:MM (specific time)'),
   deadline: DateString.optional(),
   tags: z.array(z.string().max(50)).max(20, 'Too many tags').optional(),
   checklist_items: z
     .array(z.string().max(255))
     .max(100, 'Too many checklist items')
-    .optional(),
-  list_id: z.string().optional(),
-  list: z.string().max(255).optional(),
-  heading: z.string().max(255).optional(),
-  completed: z.boolean().optional(),
-  canceled: z.boolean().optional(),
+    .optional()
+    .describe('Create a checklist within this todo with these items'),
+  list_id: z.string().optional().describe('ID of the project or area to add the todo to'),
+  list: z.string().max(255).optional().describe('Name of the project, area, or built-in list (inbox, today, anytime, etc.)'),
+  heading: z.string().max(255).optional().describe('Place this todo under a specific heading within the project'),
+  completed: z.boolean().optional().describe('Update the todo to completed state'),
+  canceled: z.boolean().optional().describe('Update the todo to canceled state'),
 });
 
 export const UpdateProjectSchema = z.object({
   id: z.string().min(1, 'ID is required'),
   title: z.string().min(1, 'Title is required').max(255, 'Title too long').optional(),
   notes: z.string().max(10000, 'Notes too long').optional(),
-  when: z.union([WhenEnum, DateString, DateTimeString]).optional(),
+  when: z.union([WhenEnum, DateString, DateTimeString]).optional().describe('Schedule the todo: today/tomorrow/evening (relative), anytime/someday (Things categories), YYYY-MM-DD (specific date), or YYYY-MM-DD@HH:MM (specific time)'),
   deadline: DateString.optional(),
   tags: z.array(z.string().max(50)).max(20, 'Too many tags').optional(),
-  area_id: z.string().optional(),
-  area: z.string().max(255).optional(),
+  area_id: z.string().optional().describe('ID of the area to place the project in'),
+  area: z.string().max(255).optional().describe('Name of the area to place the project in'),
   completed: z.boolean().optional(),
   canceled: z.boolean().optional(),
 });
