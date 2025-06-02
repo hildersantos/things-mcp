@@ -63,75 +63,59 @@ A Model Context Protocol (MCP) server for Things 3 integration. Enables Claude D
 
 ### Create a To-Do
 ```
-Use things_add_todo to create a task called "Buy milk" for today with tag "errands"
+Create a task "Buy milk" for today with tag "errands" in Things
 ```
 
-### Create a Project
+### Create a Simple Project
 ```
-Use things_add_project to create a project "Website Redesign" in area "Work" with tasks "Design mockups" and "Implement frontend"
+Create a "Website Redesign" project in Things in my Work area
 ```
 
-### Create a Hierarchical Project
+### Create a Complex Project
 ```
-Use things_add_project with hierarchical structure:
-{
-  "title": "Website Redesign",
-  "area": "Work",
-  "items": [
-    {
-      "type": "heading",
-      "title": "Research Phase",
-      "items": [
-        {
-          "type": "todo",
-          "title": "Analyze competitors",
-          "notes": "Focus on UX patterns",
-          "when": "today"
-        },
-        {
-          "type": "todo",
-          "title": "User surveys",
-          "deadline": "2025-01-20",
-          "checklist": [
-            { "title": "Create questions" },
-            { "title": "Send to users" },
-            { "title": "Analyze results" }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "todo",
-      "title": "Get stakeholder approval",
-      "notes": "Final step"
-    }
-  ]
-}
+Plan a vacation to Japan in Things with research about destinations, booking flights and hotels, 
+creating a packing list, and planning daily activities
+```
+
+### Another Project Example
+```
+Set up a new employee onboarding project in Things with IT setup tasks, HR paperwork, 
+training schedule, and first week activities
 ```
 
 ### Update a To-Do
 ```
-Use things_update_todo to mark task ABC-123 as completed
+Mark task ABC-123 as completed in Things
 ```
 
 ### List Tasks
 ```
-Show me all tasks in my Things inbox using things_get_inbox
+Show me all tasks in my Things inbox
 ```
 
-### Get Projects with IDs
+### View Projects
 ```
-List all my projects using things_get_projects (this will show IDs you can use)
+List all my projects in Things
 ```
 
 ### Navigate
 ```
-Use things_show to open my Today list
+Open my Today list in Things
 ```
 
-### Get Detailed Task Information
+### Get Task Details
 ```
-Use things_get_todo_details with id "TBeaUrcGH1zKoMmS7wwHVD" to get full details including deadline, notes, status
+Get full details for task TBeaUrcGH1zKoMmS7wwHVD from Things
+```
+
+### Search
+```
+Search for "meeting" in Things
+```
+
+### View Completed Tasks
+```
+Show me my completed tasks from the Things logbook
 ```
 
 ## Available Tools
