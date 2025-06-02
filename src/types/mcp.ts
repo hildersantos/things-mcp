@@ -34,11 +34,6 @@ export const AddTodoSchema = z.object({
   canceled: z.boolean().optional(),
 });
 
-const HeadingSchema = z.object({
-  title: z.string().min(1, 'Heading title is required').max(255, 'Heading title too long'),
-  archived: z.boolean().optional().default(false),
-});
-
 const ChecklistItemSchema = z.object({
   title: z.string().min(1, 'Checklist item title is required').max(255, 'Title too long'),
   completed: z.boolean().optional().default(false),
@@ -73,9 +68,7 @@ export const AddProjectSchema = z.object({
   tags: z.array(z.string().max(50)).max(20, 'Too many tags').optional(),
   area_id: z.string().optional().describe('ID of the area to place the project in'),
   area: z.string().max(255).optional().describe('Name of the area to place the project in'),
-  todos: z.array(z.string().max(255)).max(100, 'Too many todos').optional().describe('Simple todo titles (strings only). Use this for basic todos without complex structure'),
-  headings: z.array(HeadingSchema).max(50, 'Too many headings').optional().describe('DEPRECATED: Use items array instead for better structure'),
-  items: z.array(ProjectItemSchema).max(200, 'Too many items').optional().describe('Structured todos and headings with full properties. Preferred over todos/headings fields'),
+  items: z.array(ProjectItemSchema).max(200, 'Too many items').optional().describe('Structured todos and headings with full properties. Use this to create todos and organize them under headings'),
   completed: z.boolean().optional(),
   canceled: z.boolean().optional(),
 });

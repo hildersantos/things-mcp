@@ -53,7 +53,7 @@ describe('Add tools', () => {
       expect(props.tags).toBeDefined();
       expect(props.area_id).toBeDefined();
       expect(props.area).toBeDefined();
-      expect(props.todos).toBeDefined();
+      expect(props.items).toBeDefined();
       expect(props.completed).toBeDefined();
       expect(props.canceled).toBeDefined();
     });

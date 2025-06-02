@@ -39,9 +39,6 @@ export async function executeThingsURL(
       } else if (key === 'todos') {
         const sanitized = value.map(v => sanitizeForUrl(String(v)));
         paramString = `to-dos=${encodeURIComponent(sanitized.join('\n'))}`;
-      } else if (key === 'headings') {
-        // Skip headings in simple URL scheme - they need JSON command
-        continue;
       } else if (key === 'filter') {
         const sanitized = value.map(v => sanitizeForUrl(String(v)));
         paramString = `filter=${encodeURIComponent(sanitized.join(','))}`;

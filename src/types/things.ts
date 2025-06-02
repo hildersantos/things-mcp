@@ -106,9 +106,7 @@ export interface AddProjectParams {
   tags?: string[];
   area_id?: string;
   area?: string;
-  todos?: string[]; // Deprecated - use items instead
-  headings?: ThingsHeading[]; // Deprecated - use items instead
-  items?: ProjectItem[]; // New hierarchical structure
+  items?: ProjectItem[]; // Hierarchical structure for todos and headings
   completed?: boolean;
   canceled?: boolean;
 }

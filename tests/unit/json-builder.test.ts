@@ -1,17 +1,22 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { ThingsJSONBuilder } from '../../src/lib/json-builder.js';
-import * as urlscheme from '../../src/lib/urlscheme.js';
+
+// Create the mock
+const mockExecuteThingsJSON = jest.fn<() => Promise<void>>();
 
 // Mock the urlscheme module
-jest.mock('../../src/lib/urlscheme.js');
+jest.unstable_mockModule('../../src/lib/urlscheme.js', () => ({
+  executeThingsJSON: mockExecuteThingsJSON
+}));
+
+// Dynamic imports after mocking
+const { ThingsJSONBuilder } = await import('../../src/lib/json-builder.js');
 
 describe('ThingsJSONBuilder', () => {
   let builder: ThingsJSONBuilder;
 
   beforeEach(() => {
     builder = new ThingsJSONBuilder();
-    mockExecuteThingsJSON.mockClear();
-    mockExecuteThingsJSON.mockResolvedValue(undefined);
+    jest.clearAllMocks();
   });
 
   describe('createTodo', () => {
@@ -50,7 +55,7 @@ describe('ThingsJSONBuilder', () => {
             notes: 'Some notes',
             when: 'today',
             deadline: '2025-01-15',
-            tags: 'work,urgent',
+            tags: ['work', 'urgent'],
             'checklist-items': ['Step 1', 'Step 2'],
             list: 'inbox',
             completed: false
@@ -75,12 +80,12 @@ describe('ThingsJSONBuilder', () => {
       expect(result).toBe('✅ Project created successfully: "Test Project"');
     });
 
-    it('should create a project with headings', async () => {
+    it('should create a project with items (headings)', async () => {
       const params = {
         title: 'Project with Headings',
-        headings: [
-          { title: 'Planning', archived: false },
-          { title: 'Execution', archived: false }
+        items: [
+          { type: 'heading' as const, title: 'Planning', archived: false },
+          { type: 'heading' as const, title: 'Execution', archived: false }
         ]
       };
       
@@ -89,24 +94,32 @@ describe('ThingsJSONBuilder', () => {
       expect(mockExecuteThingsJSON).toHaveBeenCalledWith([
         {
           type: 'project',
-          attributes: { title: 'Project with Headings' }
-        },
-        {
-          type: 'heading',
-          attributes: { title: 'Planning', archived: false }
-        },
-        {
-          type: 'heading',
-          attributes: { title: 'Execution', archived: false }
+          attributes: {
+            title: 'Project with Headings',
+            items: [
+              {
+                type: 'heading',
+                attributes: { title: 'Planning', archived: false }
+              },
+              {
+                type: 'heading',
+                attributes: { title: 'Execution', archived: false }
+              }
+            ]
+          }
         }
       ]);
-      expect(result).toBe('✅ Project created successfully: "Project with Headings" (2 headings)');
+      expect(result).toBe('✅ Project created successfully: "Project with Headings" (2 items)');
     });
 
-    it('should create a project with to-dos', async () => {
+    it('should create a project with items (todos)', async () => {
       const params = {
         title: 'Project with Todos',
-        todos: ['Task 1', 'Task 2', 'Task 3']
+        items: [
+          { type: 'todo' as const, title: 'Task 1' },
+          { type: 'todo' as const, title: 'Task 2' },
+          { type: 'todo' as const, title: 'Task 3' }
+        ]
       };
       
       const result = await builder.createProject(params);
@@ -114,29 +127,36 @@ describe('ThingsJSONBuilder', () => {
       expect(mockExecuteThingsJSON).toHaveBeenCalledWith([
         {
           type: 'project',
-          attributes: { title: 'Project with Todos' }
-        },
-        {
-          type: 'to-do',
-          attributes: { title: 'Task 1' }
-        },
-        {
-          type: 'to-do',
-          attributes: { title: 'Task 2' }
-        },
-        {
-          type: 'to-do',
-          attributes: { title: 'Task 3' }
+          attributes: {
+            title: 'Project with Todos',
+            items: [
+              {
+                type: 'to-do',
+                attributes: { title: 'Task 1' }
+              },
+              {
+                type: 'to-do',
+                attributes: { title: 'Task 2' }
+              },
+              {
+                type: 'to-do',
+                attributes: { title: 'Task 3' }
+              }
+            ]
+          }
         }
       ]);
-      expect(result).toBe('✅ Project created successfully: "Project with Todos" (3 to-dos)');
+      expect(result).toBe('✅ Project created successfully: "Project with Todos" (3 items)');
     });
 
-    it('should create a project with headings and to-dos', async () => {
+    it('should create a project with mixed items (headings and todos)', async () => {
       const params = {
         title: 'Complex Project',
-        headings: [{ title: 'Phase 1' }],
-        todos: ['Task A', 'Task B'],
+        items: [
+          { type: 'heading' as const, title: 'Phase 1' },
+          { type: 'todo' as const, title: 'Task A' },
+          { type: 'todo' as const, title: 'Task B' }
+        ],
         area: 'Work',
         tags: ['important', 'q1']
       };
@@ -149,23 +169,25 @@ describe('ThingsJSONBuilder', () => {
           attributes: {
             title: 'Complex Project',
             area: 'Work',
-            tags: 'important,q1'
+            tags: ['important', 'q1'],
+            items: [
+              {
+                type: 'heading',
+                attributes: { title: 'Phase 1', archived: false }
+              },
+              {
+                type: 'to-do',
+                attributes: { title: 'Task A' }
+              },
+              {
+                type: 'to-do',
+                attributes: { title: 'Task B' }
+              }
+            ]
           }
-        },
-        {
-          type: 'heading',
-          attributes: { title: 'Phase 1', archived: false }
-        },
-        {
-          type: 'to-do',
-          attributes: { title: 'Task A' }
-        },
-        {
-          type: 'to-do',
-          attributes: { title: 'Task B' }
         }
       ]);
-      expect(result).toBe('✅ Project created successfully: "Complex Project" (1 headings, 2 to-dos)');
+      expect(result).toBe('✅ Project created successfully: "Complex Project" (3 items)');
     });
   });
 
@@ -180,8 +202,8 @@ describe('ThingsJSONBuilder', () => {
       
       await builder.createTodo(params);
       
-      const call = mockExecuteThingsJSON.mock.calls[0][0];
-      const attributes = call[0].attributes as Record<string, unknown>;
+      const call = mockExecuteThingsJSON.mock.calls[0]?.[0];
+      const attributes = call?.[0]?.attributes as Record<string, unknown>;
       
       expect(attributes.notes).toBeUndefined();
       expect(attributes.when).toBeUndefined();
@@ -196,10 +218,10 @@ describe('ThingsJSONBuilder', () => {
       
       await builder.createProject(params);
       
-      const call = mockExecuteThingsJSON.mock.calls[0][0];
-      const attributes = call[0].attributes as Record<string, unknown>;
+      const call = mockExecuteThingsJSON.mock.calls[0]?.[0];
+      const attributes = call?.[0]?.attributes as Record<string, unknown>;
       
-      expect(attributes.tags).toBe('tag1,tag2,tag3');
+      expect(attributes.tags).toEqual(['tag1', 'tag2', 'tag3']);
     });
   });
 });

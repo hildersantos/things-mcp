@@ -1,4 +1,4 @@
-import { AddTodoParams, AddProjectParams, ThingsHeading, ProjectItem, TodoItem } from '../types/things.js';
+import { AddTodoParams, AddProjectParams, ProjectItem, TodoItem } from '../types/things.js';
 import { executeThingsJSON } from './urlscheme.js';
 
 /**
@@ -16,40 +16,31 @@ export class ThingsJSONBuilder {
   }
 
   /**
-   * Create a project with optional headings and to-dos using JSON API
+   * Create a project with optional to-dos and headings using JSON API
    */
   async createProject(params: AddProjectParams): Promise<string> {
     const items = this.buildProjectStructure(params);
     await executeThingsJSON(items);
     
-    const details = [];
-    if (params.headings?.length) details.push(`${params.headings.length} headings`);
-    if (params.todos?.length) details.push(`${params.todos.length} to-dos`);
+    let itemCount = 0;
+    if (params.items?.length) {
+      itemCount = params.items.length;
+    }
     
-    return details.length > 0
-      ? `✅ Project created successfully: "${params.title}" (${details.join(', ')})`
+    return itemCount > 0
+      ? `✅ Project created successfully: "${params.title}" (${itemCount} items)`
       : `✅ Project created successfully: "${params.title}"`;
   }
 
   /**
-   * Build complete project structure including headings and to-dos
+   * Build complete project structure including to-dos and headings
    */
   private buildProjectStructure(params: AddProjectParams): Record<string, unknown>[] {
     const projectItems: Record<string, unknown>[] = [];
     
-    // Use new hierarchical structure if provided
+    // Use hierarchical structure if provided
     if (params.items && params.items.length > 0) {
       projectItems.push(...this.buildHierarchicalItems(params.items));
-    }
-    // Fall back to legacy structure for backward compatibility
-    else {
-      if (params.headings && params.headings.length > 0) {
-        projectItems.push(...this.buildHeadings(params.headings));
-      }
-      
-      if (params.todos && params.todos.length > 0) {
-        projectItems.push(...this.buildTodos(params.todos));
-      }
     }
     
     // Create the project with nested items
@@ -105,7 +96,7 @@ export class ThingsJSONBuilder {
       ...(todo.notes && { notes: todo.notes }),
       ...(todo.when && { when: todo.when }),
       ...(todo.deadline && { deadline: todo.deadline }),
-      ...(todo.tags && { tags: todo.tags }),
+      ...(todo.tags && todo.tags.length > 0 && { tags: todo.tags }),
       ...(todo.completed !== undefined && { completed: todo.completed }),
       ...(todo.canceled !== undefined && { canceled: todo.canceled })
     };
@@ -137,28 +128,6 @@ export class ThingsJSONBuilder {
     };
   }
 
-  /**
-   * Build heading items
-   */
-  private buildHeadings(headings: ThingsHeading[]): Record<string, unknown>[] {
-    return headings.map(heading => ({
-      type: 'heading',
-      attributes: {
-        title: heading.title,
-        archived: heading.archived || false
-      }
-    }));
-  }
-
-  /**
-   * Build to-do items from simple string array
-   */
-  private buildTodos(todos: string[]): Record<string, unknown>[] {
-    return todos.map(title => ({
-      type: 'to-do',
-      attributes: { title }
-    }));
-  }
 
   /**
    * Convert to-do parameters to Things JSON format
@@ -169,13 +138,13 @@ export class ThingsJSONBuilder {
       ...(params.notes && { notes: params.notes }),
       ...(params.when && { when: params.when }),
       ...(params.deadline && { deadline: params.deadline }),
-      ...(params.tags && { tags: params.tags }), // JSON expects array, not string
+      ...(params.tags && params.tags.length > 0 && { tags: params.tags }), // JSON expects array, not string
       ...(params.checklist_items && { 'checklist-items': params.checklist_items }),
       ...(params.list_id && { 'list-id': params.list_id }),
       ...(params.list && { list: params.list }),
       ...(params.heading && { heading: params.heading }),
-      ...(params.completed && { completed: params.completed }),
-      ...(params.canceled && { canceled: params.canceled })
+      ...(params.completed !== undefined && { completed: params.completed }),
+      ...(params.canceled !== undefined && { canceled: params.canceled })
     };
   }
 
@@ -188,11 +157,11 @@ export class ThingsJSONBuilder {
       ...(params.notes && { notes: params.notes }),
       ...(params.when && { when: params.when }),
       ...(params.deadline && { deadline: params.deadline }),
-      ...(params.tags && { tags: params.tags }), // JSON expects array, not string
+      ...(params.tags && params.tags.length > 0 && { tags: params.tags }), // JSON expects array, not string
       ...(params.area_id && { 'area-id': params.area_id }),
       ...(params.area && { area: params.area }),
-      ...(params.completed && { completed: params.completed }),
-      ...(params.canceled && { canceled: params.canceled })
+      ...(params.completed !== undefined && { completed: params.completed }),
+      ...(params.canceled !== undefined && { canceled: params.canceled })
     };
   }
 }
