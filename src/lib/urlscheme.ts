@@ -82,23 +82,18 @@ export async function executeThingsURL(
 }
 
 export async function executeThingsJSON(jsonData: Record<string, unknown>[]): Promise<void> {
-  // Add auth token to each item if required
-  const processedData = jsonData.map(item => {
-    if (requiresAuth('add-json')) {
-      return {
-        ...item,
-        attributes: {
-          ...(item.attributes as Record<string, unknown>),
-          'auth-token': getAuthToken()
-        }
-      };
-    }
-    return item;
-  });
-
-  const jsonString = JSON.stringify(processedData);
+  // Check if any operation requires auth
+  const hasUpdateOperation = jsonData.some(item => item.operation === 'update');
+  
+  const jsonString = JSON.stringify(jsonData);
   const encodedData = encodeURIComponent(jsonString);
-  const url = `things:///add-json?data=${encodedData}`;
+  
+  // Add auth token as URL parameter if needed
+  let url = `things:///json?data=${encodedData}`;
+  if (hasUpdateOperation) {
+    const authToken = getAuthToken();
+    url += `&auth-token=${encodeURIComponent(authToken)}`;
+  }
   
   // Check URL length
   if (url.length > MAX_URL_LENGTH * 4) { // JSON URLs can be longer

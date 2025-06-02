@@ -88,6 +88,11 @@ training schedule, and first week activities
 Mark task ABC-123 as completed in Things
 ```
 
+### Add Items to Existing Project
+```
+Add new tasks to my "Website Redesign" project in Things: create wireframes, design mockups, and user testing
+```
+
 ### List Tasks
 ```
 Show me all tasks in my Things inbox
@@ -122,11 +127,12 @@ Show me my completed tasks from the Things logbook
 
 ### Creation Tools
 - `things_add_todo` - Create a to-do with all options
-- `things_add_project` - Create a project with to-dos and headings
+- `things_add_project` - Create a project with sections (headings), todos, and hierarchical organization
 
 ### Update Tools (requires auth token)
-- `things_update_todo` - Update an existing to-do
-- `things_update_project` - Update an existing project
+- `things_update_todo` - Update an existing to-do using JSON API for full feature support
+- `things_update_project` - Update an existing project using JSON API for full feature support
+- `things_add_items_to_project` - Add structured todos and headings to an existing project
 
 ### Reading Tools
 - `things_get_inbox` - List inbox items

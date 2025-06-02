@@ -22,6 +22,8 @@ export function getAuthToken(): string {
   return token;
 }
 
-export function requiresAuth(command: string): boolean {
-  return ['update', 'update-project'].includes(command);
+export function requiresAuth(_command: string): boolean {
+  // Auth is now handled at the operation level for JSON commands
+  // Only URL scheme commands that explicitly require auth would be listed here
+  return false;
 }

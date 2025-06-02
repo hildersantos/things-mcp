@@ -139,11 +139,20 @@ describe('executeThingsURL', () => {
       process.env = originalEnv;
     });
 
-    it('should require auth token for update commands', async () => {
+    it('should not require auth token for json commands without update operations', async () => {
       delete process.env.THINGS_AUTH_TOKEN;
       
-      await expect(executeThingsURL('update', { id: 'test' }))
-        .rejects.toThrow('THINGS_AUTH_TOKEN not configured');
+      // Should not throw auth error for non-update JSON operations
+      // This test verifies auth logic without actually calling Things
+      const { executeThingsJSON } = await import('../../src/lib/urlscheme.js');
+      
+      try {
+        await executeThingsJSON([{ type: 'to-do', attributes: { title: 'test' } }]);
+      } catch (error: any) {
+        // We expect execution to fail in test environment
+        expect(error.code).toBe('JSON_EXECUTION_FAILED');
+        expect(error.message).not.toContain('THINGS_AUTH_TOKEN');
+      }
     });
 
     it('should not require auth token for other commands', async () => {

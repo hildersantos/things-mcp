@@ -132,3 +132,20 @@ export type ThingsList =
   | 'someday'
   | 'logbook'
   | 'trash';
+
+// New JSON update operation parameters
+export interface UpdateTodoJSONParams extends AddTodoParams {
+  id: string;
+  operation: 'update';
+}
+
+export interface UpdateProjectJSONParams extends AddProjectParams {
+  id: string;
+  operation: 'update';
+}
+
+export interface AddItemsToProjectParams {
+  id: string;
+  items: ProjectItem[];
+  operation: 'update';
+}

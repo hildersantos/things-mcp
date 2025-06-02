@@ -13,12 +13,12 @@ class AddToolHandler extends AbstractToolHandler<AddParams> {
   protected definitions: ToolDefinition<AddParams>[] = [
     {
       name: 'things_add_todo',
-      description: 'Add a new to-do to Things',
+      description: 'Add a new to-do to Things with full support for checklists to break down complex tasks into manageable steps. Use checklist when task has multiple components that don\'t warrant a separate project.',
       schema: AddTodoSchema
     },
     {
       name: 'things_add_project',
-      description: 'Add a new project to Things',
+      description: 'Creates a project in Things with support for sections (headings), todos, and hierarchical organization. Perfect for complex projects with multiple phases, days, or categories. When user says \'separate as sections/headings\', use heading items to create dividers.',
       schema: AddProjectSchema
     }
   ];
