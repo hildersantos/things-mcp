@@ -21,9 +21,19 @@ A Model Context Protocol (MCP) server for Things 3 integration. Enables Claude D
 
 ## Installation
 
+### Quick Start with npx (Recommended)
+
+```bash
+npx github:hildersantos/things-mcp
+```
+
+This will automatically download, build, and start the MCP server.
+
+### Manual Installation
+
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/things-mcp.git
+   git clone https://github.com/hildersantos/things-mcp.git
    cd things-mcp
    ```
 
@@ -37,27 +47,62 @@ A Model Context Protocol (MCP) server for Things 3 integration. Enables Claude D
    npm run build
    ```
 
+4. Start the server:
+   ```bash
+   npm start
+   ```
+
 ## Configuration
 
-1. **Get your Things auth token** (for update operations):
+### Claude Desktop Setup
+
+1. **Get your Things auth token** (required for update operations):
    - Open Things → Settings → General
    - Enable Things URLs
    - Click Manage → Copy Token
 
-2. **Add to your Claude MCP settings**:
+2. **Configure Claude Desktop**:
+   
+   Open your Claude Desktop configuration file:
+   ```bash
+   ~/Library/Application Support/Claude/claude_desktop_config.json
+   ```
+
+   Add the Things MCP server to the `mcpServers` section:
    ```json
    {
-     "things-mcp": {
-       "command": "node",
-       "args": ["/absolute/path/to/things-mcp/dist/index.js"],
-       "env": {
-         "THINGS_AUTH_TOKEN": "your-token-here"
+     "mcpServers": {
+       "things-mcp": {
+         "command": "npx",
+         "args": ["github:hildersantos/things-mcp"],
+         "env": {
+           "THINGS_AUTH_TOKEN": "your-token-here"
+         }
        }
      }
    }
    ```
 
-   Replace `/absolute/path/to/things-mcp` with the actual path to your installation.
+   Replace `your-token-here` with your actual Things auth token from step 1.
+
+3. **Restart Claude Desktop** to apply the configuration changes.
+
+### Alternative: Local Installation
+
+If you prefer to install locally instead of using npx:
+```json
+{
+  "mcpServers": {
+    "things-mcp": {
+      "command": "node",
+      "args": ["/absolute/path/to/things-mcp/dist/index.js"],
+      "env": {
+        "THINGS_AUTH_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
 
 ## Usage Examples
 

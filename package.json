@@ -4,8 +4,11 @@
   "description": "Secure MCP server for Things 3 integration",
   "main": "dist/index.js",
   "type": "module",
+  "bin": {
+    "things-mcp": "./bin/things-mcp.js"
+  },
   "scripts": {
-    "build": "tsc && mkdir -p dist/scripts && cp src/scripts/*.applescript dist/scripts/",
+    "build": "tsc && mkdir -p dist/scripts && cp src/scripts/*.applescript dist/scripts/ && cp -r bin dist/",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
     "lint": "eslint src/**/*.ts",
@@ -15,17 +18,17 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
     "zod": "^3.25.46"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
-    "@types/node": "^20.0.0",
     "@typescript-eslint/eslint-plugin": "^8.33.0",
     "@typescript-eslint/parser": "^8.33.0",
     "eslint": "^8.57.1",
     "jest": "^29.7.0",
     "prettier": "^3.5.3",
-    "ts-jest": "^29.3.4",
-    "typescript": "^5.0.0"
+    "ts-jest": "^29.3.4"
   }
 }
