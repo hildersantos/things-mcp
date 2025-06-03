@@ -34,21 +34,22 @@ const serverPath = join(__dirname, '..', 'dist', 'index.js');
 
 // Check if built files exist
 if (!existsSync(serverPath)) {
-  console.error('[ERROR] Server files not found. Setting up project...');
+  // Use stderr for all setup messages to avoid interfering with MCP JSON protocol
+  console.error('[INFO] Server files not found. Setting up project...');
   
   // Check if node_modules exists
   const nodeModulesPath = join(__dirname, '..', 'node_modules');
   if (!existsSync(nodeModulesPath)) {
-    console.log('[INFO] Installing dependencies...');
+    console.error('[INFO] Installing dependencies...');
     
     const installProcess = spawn('npm', ['install', '--production'], {
-      stdio: 'inherit',
+      stdio: ['inherit', 'ignore', 'inherit'], // stdin, stdout (ignored), stderr
       cwd: join(__dirname, '..')
     });
     
     installProcess.on('exit', (code) => {
       if (code === 0) {
-        console.log('[OK] Dependencies installed. Building project...');
+        console.error('[OK] Dependencies installed. Building project...');
         buildProject();
       } else {
         console.error('[ERROR] Installation failed');
@@ -64,16 +65,16 @@ if (!existsSync(serverPath)) {
 }
 
 function buildProject() {
-  console.log('[INFO] Running npm run build...');
+  console.error('[INFO] Running npm run build...');
   
   const buildProcess = spawn('npm', ['run', 'build'], {
-    stdio: 'inherit',
+    stdio: ['inherit', 'ignore', 'inherit'], // stdin, stdout (ignored), stderr
     cwd: join(__dirname, '..')
   });
   
   buildProcess.on('exit', (code) => {
     if (code === 0) {
-      console.log('[OK] Build completed. Starting server...');
+      console.error('[OK] Build completed. Starting server...');
       startServer();
     } else {
       console.error('[ERROR] Build failed');
@@ -83,8 +84,8 @@ function buildProject() {
 }
 
 function startServer() {
-  console.log('[INFO] Starting Things MCP Server...');
-  console.log('[INFO] Server path:', serverPath);
+  console.error('[INFO] Starting Things MCP Server...');
+  console.error('[INFO] Server path:', serverPath);
 
   // Start the MCP server
   const server = spawn('node', [serverPath], {
@@ -98,13 +99,13 @@ function startServer() {
 
   // Handle process termination
   process.on('SIGINT', () => {
-    console.log('\n[INFO] Shutting down Things MCP Server...');
+    console.error('\n[INFO] Shutting down Things MCP Server...');
     server.kill('SIGINT');
     process.exit(0);
   });
 
   process.on('SIGTERM', () => {
-    console.log('\n[INFO] Shutting down Things MCP Server...');
+    console.error('\n[INFO] Shutting down Things MCP Server...');
     server.kill('SIGTERM');
     process.exit(0);
   });
@@ -112,10 +113,10 @@ function startServer() {
   // Handle server exit
   server.on('exit', (code, signal) => {
     if (code !== null) {
-      console.log(`\n[ERROR] Things MCP Server exited with code ${code}`);
+      console.error(`\n[ERROR] Things MCP Server exited with code ${code}`);
       process.exit(code);
     } else if (signal) {
-      console.log(`\n[ERROR] Things MCP Server killed by signal ${signal}`);
+      console.error(`\n[ERROR] Things MCP Server killed by signal ${signal}`);
       process.exit(1);
     }
   });
