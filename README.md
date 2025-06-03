@@ -21,9 +21,19 @@ A Model Context Protocol (MCP) server for Things 3 integration. Enables Claude D
 
 ## Installation
 
+### Quick Start with npx (Recommended)
+
+```bash
+npx github:hildersantos/things-mcp
+```
+
+This will automatically download, build, and start the MCP server.
+
+### Manual Installation
+
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/things-mcp.git
+   git clone https://github.com/hildersantos/things-mcp.git
    cd things-mcp
    ```
 
@@ -35,6 +45,11 @@ A Model Context Protocol (MCP) server for Things 3 integration. Enables Claude D
 3. Build the project:
    ```bash
    npm run build
+   ```
+
+4. Start the server:
+   ```bash
+   npm start
    ```
 
 ## Configuration

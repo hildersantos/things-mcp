@@ -4,8 +4,11 @@
   "description": "Secure MCP server for Things 3 integration",
   "main": "dist/index.js",
   "type": "module",
+  "bin": {
+    "things-mcp": "./bin/things-mcp.js"
+  },
   "scripts": {
-    "build": "tsc && mkdir -p dist/scripts && cp src/scripts/*.applescript dist/scripts/",
+    "build": "tsc && mkdir -p dist/scripts && cp src/scripts/*.applescript dist/scripts/ && cp -r bin dist/",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
     "lint": "eslint src/**/*.ts",
