@@ -11,7 +11,7 @@ const __dirname = dirname(__filename);
 // Check for help flag
 if (process.argv.includes('--help') || process.argv.includes('-h')) {
   console.log(`
-🎯 Things MCP Server
+Things MCP Server
 
 A Model Context Protocol server for Things 3 integration.
 
@@ -34,12 +34,12 @@ const serverPath = join(__dirname, '..', 'dist', 'index.js');
 
 // Check if built files exist
 if (!existsSync(serverPath)) {
-  console.error('❌ Server files not found. Setting up project...');
+  console.error('[ERROR] Server files not found. Setting up project...');
   
   // Check if node_modules exists
   const nodeModulesPath = join(__dirname, '..', 'node_modules');
   if (!existsSync(nodeModulesPath)) {
-    console.log('📦 Installing dependencies...');
+    console.log('[INFO] Installing dependencies...');
     
     const installProcess = spawn('npm', ['install', '--production'], {
       stdio: 'inherit',
@@ -48,10 +48,10 @@ if (!existsSync(serverPath)) {
     
     installProcess.on('exit', (code) => {
       if (code === 0) {
-        console.log('✅ Dependencies installed. Building project...');
+        console.log('[OK] Dependencies installed. Building project...');
         buildProject();
       } else {
-        console.error('❌ Installation failed');
+        console.error('[ERROR] Installation failed');
         process.exit(1);
       }
     });
@@ -64,7 +64,7 @@ if (!existsSync(serverPath)) {
 }
 
 function buildProject() {
-  console.log('🔨 Running npm run build...');
+  console.log('[INFO] Running npm run build...');
   
   const buildProcess = spawn('npm', ['run', 'build'], {
     stdio: 'inherit',
@@ -73,18 +73,18 @@ function buildProject() {
   
   buildProcess.on('exit', (code) => {
     if (code === 0) {
-      console.log('✅ Build completed. Starting server...');
+      console.log('[OK] Build completed. Starting server...');
       startServer();
     } else {
-      console.error('❌ Build failed');
+      console.error('[ERROR] Build failed');
       process.exit(1);
     }
   });
 }
 
 function startServer() {
-  console.log('🚀 Starting Things MCP Server...');
-  console.log('📍 Server path:', serverPath);
+  console.log('[INFO] Starting Things MCP Server...');
+  console.log('[INFO] Server path:', serverPath);
 
   // Start the MCP server
   const server = spawn('node', [serverPath], {
@@ -98,13 +98,13 @@ function startServer() {
 
   // Handle process termination
   process.on('SIGINT', () => {
-    console.log('\n👋 Shutting down Things MCP Server...');
+    console.log('\n[INFO] Shutting down Things MCP Server...');
     server.kill('SIGINT');
     process.exit(0);
   });
 
   process.on('SIGTERM', () => {
-    console.log('\n👋 Shutting down Things MCP Server...');
+    console.log('\n[INFO] Shutting down Things MCP Server...');
     server.kill('SIGTERM');
     process.exit(0);
   });
@@ -112,19 +112,19 @@ function startServer() {
   // Handle server exit
   server.on('exit', (code, signal) => {
     if (code !== null) {
-      console.log(`\n🔴 Things MCP Server exited with code ${code}`);
+      console.log(`\n[ERROR] Things MCP Server exited with code ${code}`);
       process.exit(code);
     } else if (signal) {
-      console.log(`\n🔴 Things MCP Server killed by signal ${signal}`);
+      console.log(`\n[ERROR] Things MCP Server killed by signal ${signal}`);
       process.exit(1);
     }
   });
 
   server.on('error', (error) => {
-    console.error('❌ Failed to start Things MCP Server:', error.message);
+    console.error('[ERROR] Failed to start Things MCP Server:', error.message);
     
     if (error.code === 'ENOENT') {
-      console.error('\n💡 Make sure to build the project first:');
+      console.error('\n[INFO] Make sure to build the project first:');
       console.error('   npm run build');
     }
     
