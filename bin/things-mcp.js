@@ -34,8 +34,37 @@ const serverPath = join(__dirname, '..', 'dist', 'index.js');
 
 // Check if built files exist
 if (!existsSync(serverPath)) {
-  console.error('❌ Server files not found. Building project...');
-  console.log('📦 Running npm run build...');
+  console.error('❌ Server files not found. Setting up project...');
+  
+  // Check if node_modules exists
+  const nodeModulesPath = join(__dirname, '..', 'node_modules');
+  if (!existsSync(nodeModulesPath)) {
+    console.log('📦 Installing dependencies...');
+    
+    const installProcess = spawn('npm', ['install', '--production'], {
+      stdio: 'inherit',
+      cwd: join(__dirname, '..')
+    });
+    
+    installProcess.on('exit', (code) => {
+      if (code === 0) {
+        console.log('✅ Dependencies installed. Building project...');
+        buildProject();
+      } else {
+        console.error('❌ Installation failed');
+        process.exit(1);
+      }
+    });
+  } else {
+    buildProject();
+  }
+} else {
+  // Start the server if files exist
+  startServer();
+}
+
+function buildProject() {
+  console.log('🔨 Running npm run build...');
   
   const buildProcess = spawn('npm', ['run', 'build'], {
     stdio: 'inherit',
@@ -51,9 +80,6 @@ if (!existsSync(serverPath)) {
       process.exit(1);
     }
   });
-} else {
-  // Start the server if files exist
-  startServer();
 }
 
 function startServer() {
