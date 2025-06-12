@@ -344,5 +344,53 @@ describe('ThingsJSONBuilder', () => {
       ]);
       expect(result).toBe('✅ Added 2 items to project successfully');
     });
+
+    it('should add complex items with proper flat structure', async () => {
+      const params = {
+        id: 'project-123',
+        items: [
+          { type: 'heading' as const, title: 'Day 1' },
+          { type: 'todo' as const, title: 'Morning activity', notes: 'Early start' },
+          { type: 'todo' as const, title: 'Lunch at cafe' },
+          { type: 'heading' as const, title: 'Day 2' },
+          { type: 'todo' as const, title: 'Museum visit', when: 'tomorrow' as const }
+        ]
+      };
+      
+      const result = await builder.addItemsToProject(params);
+      
+      expect(mockExecuteThingsJSON).toHaveBeenCalledWith([
+        {
+          type: 'project',
+          operation: 'update',
+          id: 'project-123',
+          attributes: {
+            items: [
+              {
+                type: 'heading',
+                attributes: { title: 'Day 1', archived: false }
+              },
+              {
+                type: 'to-do',
+                attributes: { title: 'Morning activity', notes: 'Early start' }
+              },
+              {
+                type: 'to-do',
+                attributes: { title: 'Lunch at cafe' }
+              },
+              {
+                type: 'heading',
+                attributes: { title: 'Day 2', archived: false }
+              },
+              {
+                type: 'to-do',
+                attributes: { title: 'Museum visit', when: 'tomorrow' }
+              }
+            ]
+          }
+        }
+      ]);
+      expect(result).toBe('✅ Added 5 items to project successfully');
+    });
   });
 });

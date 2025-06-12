@@ -6,33 +6,28 @@ describe('MCP Server', () => {
       const { addTools } = await import('../../src/tools/add.js');
       const { getTools } = await import('../../src/tools/get.js');
       const { showTools } = await import('../../src/tools/show.js');
-      const { searchTools } = await import('../../src/tools/search.js');
       
       expect(addTools).toBeDefined();
       expect(getTools).toBeDefined();
       expect(showTools).toBeDefined();
-      expect(searchTools).toBeDefined();
     });
 
     it('should have expected number of tools in each category', async () => {
       const { addTools } = await import('../../src/tools/add.js');
       const { getTools } = await import('../../src/tools/get.js');
       const { showTools } = await import('../../src/tools/show.js');
-      const { searchTools } = await import('../../src/tools/search.js');
       
       expect(addTools.length).toBe(2);
       expect(getTools.length).toBeGreaterThan(5);
       expect(showTools.length).toBe(1);
-      expect(searchTools.length).toBe(1);
     });
 
     it('should create combined tool list with unique names', async () => {
       const { addTools } = await import('../../src/tools/add.js');
       const { getTools } = await import('../../src/tools/get.js');
       const { showTools } = await import('../../src/tools/show.js');
-      const { searchTools } = await import('../../src/tools/search.js');
       
-      const allTools = [...addTools, ...getTools, ...showTools, ...searchTools];
+      const allTools = [...addTools, ...getTools, ...showTools];
       const toolNames = allTools.map(tool => tool.name);
       const uniqueNames = new Set(toolNames);
       

@@ -66,7 +66,7 @@ export class ThingsJSONBuilder {
    * Add items to an existing project using JSON API
    */
   async addItemsToProject(params: AddItemsToProjectParams): Promise<string> {
-    const projectItems = this.buildHierarchicalItems(params.items);
+    const projectItems = this.buildProjectItems(params.items);
     
     const updateData = {
       type: 'project',
@@ -87,12 +87,12 @@ export class ThingsJSONBuilder {
   private buildProjectStructure(params: AddProjectParams): Record<string, unknown>[] {
     const projectItems: Record<string, unknown>[] = [];
     
-    // Use hierarchical structure if provided
+    // Build flat structure of items
     if (params.items && params.items.length > 0) {
-      projectItems.push(...this.buildHierarchicalItems(params.items));
+      projectItems.push(...this.buildProjectItems(params.items));
     }
     
-    // Create the project with nested items
+    // Create the project with items
     const projectAttributes = this.convertProjectParams(params);
     if (projectItems.length > 0) {
       projectAttributes.items = projectItems;
@@ -105,14 +105,14 @@ export class ThingsJSONBuilder {
   }
 
   /**
-   * Build hierarchical items (new structure)
+   * Build flat array of project items (headings and todos as siblings)
    */
-  private buildHierarchicalItems(items: ProjectItem[]): Record<string, unknown>[] {
+  private buildProjectItems(items: ProjectItem[]): Record<string, unknown>[] {
     const result: Record<string, unknown>[] = [];
     
     for (const item of items) {
       if (item.type === 'heading') {
-        // Add the heading
+        // Add the heading as a simple item
         result.push({
           type: 'heading',
           attributes: {
@@ -120,15 +120,8 @@ export class ThingsJSONBuilder {
             archived: item.archived || false
           }
         });
-        
-        // Add todos within this heading
-        if (item.items && item.items.length > 0) {
-          for (const todo of item.items) {
-            result.push(this.buildFullTodo(todo));
-          }
-        }
       } else {
-        // Standalone todo (not in a heading)
+        // Add todo
         result.push(this.buildFullTodo(item));
       }
     }

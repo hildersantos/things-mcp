@@ -6,7 +6,6 @@ import { CallToolRequestSchema, ListToolsRequestSchema, CallToolResult } from '@
 import { addToolHandler } from './tools/add.js';
 import { getToolHandler } from './tools/get.js';
 import { showToolHandler } from './tools/show.js';
-import { searchToolHandler } from './tools/search.js';
 import { updateJSONToolHandler } from './tools/update-json.js';
 import { testThingsAvailable } from './lib/applescript.js';
 import { toolRegistry } from './lib/tool-registry.js';
@@ -15,7 +14,6 @@ import { toolRegistry } from './lib/tool-registry.js';
 toolRegistry.registerToolHandler(addToolHandler);
 toolRegistry.registerToolHandler(getToolHandler);
 toolRegistry.registerToolHandler(showToolHandler);
-toolRegistry.registerToolHandler(searchToolHandler);
 toolRegistry.registerToolHandler(updateJSONToolHandler);
 
 // Create MCP server

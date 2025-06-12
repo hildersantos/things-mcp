@@ -40,7 +40,7 @@ const ChecklistItemSchema = z.object({
 });
 
 const TodoItemSchema = z.object({
-  type: z.literal('todo').describe('Creates an individual task/activity. When nested inside a heading\'s \'items\' array, this todo appears under that section. Use for specific activities, locations to visit, meals to have, etc.'),
+  type: z.literal('todo').describe('Creates an individual task/activity in the project. Todos that appear after a heading in the items array will be visually grouped under that heading in Things 3. Use for specific activities, locations to visit, meals to have, etc.'),
   title: z.string().min(1, 'Todo title is required').max(255, 'Title too long'),
   notes: z.string().max(10000, 'Notes too long').optional(),
   when: z.union([WhenEnum, DateString, DateTimeString]).optional().describe('Schedule the todo: today/tomorrow/evening (relative), anytime/someday (Things categories), YYYY-MM-DD (specific date), or YYYY-MM-DD@HH:MM (specific time)'),
@@ -52,10 +52,9 @@ const TodoItemSchema = z.object({
 });
 
 const HeadingItemSchema = z.object({
-  type: z.literal('heading').describe('Creates a section header/divider that groups related todos underneath it. Use this when user wants to \'separate by days\', \'organize by categories\', or create \'sections\'. The heading title becomes the section name (e.g., \'Day 1\', \'Phase 1\'), and todos go in the \'items\' array below it.'),
+  type: z.literal('heading').describe('Creates a section header/divider in the project. Use this when user wants to \'separate by days\', \'organize by categories\', or create \'sections\'. Headings are visual separators - todos that appear after a heading in the items array will be visually grouped under it in Things 3.'),
   title: z.string().min(1, 'Heading title is required').max(255, 'Title too long'),
   archived: z.boolean().optional().default(false),
-  items: z.array(TodoItemSchema).max(100, 'Too many todos in heading').optional(),
 });
 
 const ProjectItemSchema = z.discriminatedUnion('type', [TodoItemSchema, HeadingItemSchema]);
@@ -68,7 +67,7 @@ export const AddProjectSchema = z.object({
   tags: z.array(z.string().max(50)).max(20, 'Too many tags').optional(),
   area_id: z.string().optional().describe('ID of the area to place the project in'),
   area: z.string().max(255).optional().describe('Name of the area to place the project in'),
-  items: z.array(ProjectItemSchema).max(200, 'Too many items').optional().describe('Create a structured project with sections (headings) and todos. Each item must have a \'type\' field: use \'heading\' to create section dividers (like days, phases, categories), and \'todo\' for individual tasks. Headings organize todos underneath them. Structure: [{type: \'heading\', title: \'Day 1\', items: [{type: \'todo\', title: \'Activity 1\', notes: \'details\'}, {type: \'todo\', title: \'Activity 2\'}]}, {type: \'heading\', title: \'Day 2\', items: [...]}]. When user says \'separate as sections/headings\', create headings for each major grouping.'),
+  items: z.array(ProjectItemSchema).max(200, 'Too many items').optional().describe('Create a structured project with sections (headings) and todos in a flat array. Each item must have a \'type\' field: \'heading\' for section dividers, \'todo\' for tasks. Items are siblings - todos after a heading are visually grouped under it. Example: [{type: \'heading\', title: \'Day 1\'}, {type: \'todo\', title: \'Morning walk\'}, {type: \'todo\', title: \'Breakfast\'}, {type: \'heading\', title: \'Day 2\'}, {type: \'todo\', title: \'Museum visit\'}]. Order matters - todos appear under the most recent heading.'),
   completed: z.boolean().optional(),
   canceled: z.boolean().optional(),
 });
@@ -83,9 +82,6 @@ export const ShowSchema = z
     message: 'Either id or query must be provided',
   });
 
-export const SearchSchema = z.object({
-  query: z.string().max(255).optional().describe('Search query (leave empty to just open search)'),
-});
 
 export const GetListByNameSchema = z.object({
   list: z.enum([
@@ -132,6 +128,6 @@ export const UpdateProjectJSONSchema = AddProjectSchema.extend({
 
 export const AddItemsToProjectSchema = z.object({
   id: z.string().min(1, 'Project ID is required'),
-  items: z.array(ProjectItemSchema).min(1, 'At least one item required').max(200, 'Too many items').describe('Add structured todos and headings to an existing project. Use headings to organize tasks into phases, categories, or days.'),
+  items: z.array(ProjectItemSchema).min(1, 'At least one item required').max(200, 'Too many items').describe('Add structured todos and headings to an existing project. Items are added as a flat array where headings act as visual separators. Todos that follow a heading will appear grouped under it. Example: [{type: \'heading\', title: \'Phase 2\'}, {type: \'todo\', title: \'Task 1\'}, {type: \'todo\', title: \'Task 2\'}].'),
   operation: z.literal('update').default('update')
 });

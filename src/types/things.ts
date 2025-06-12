@@ -49,7 +49,6 @@ export interface HeadingItem {
   type: 'heading';
   title: string;
   archived?: boolean;
-  items?: TodoItem[];
 }
 
 export type ProjectItem = TodoItem | HeadingItem;
