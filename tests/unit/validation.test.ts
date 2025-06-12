@@ -1,7 +1,6 @@
 import { 
   AddTodoSchema, 
-  ShowSchema, 
-  SearchSchema 
+  ShowSchema
 } from '../../src/types/mcp.js';
 
 describe('AddTodoSchema', () => {
@@ -113,7 +112,7 @@ describe('ShowSchema', () => {
   });
 
   test('should accept valid query', () => {
-    const validShow = { query: 'search term' };
+    const validShow = { query: 'inbox' };
     const result = ShowSchema.safeParse(validShow);
     expect(result.success).toBe(true);
   });
@@ -128,15 +127,3 @@ describe('ShowSchema', () => {
   });
 });
 
-describe('SearchSchema', () => {
-  test('should accept empty object', () => {
-    const result = SearchSchema.safeParse({});
-    expect(result.success).toBe(true);
-  });
-
-  test('should accept valid query', () => {
-    const validSearch = { query: 'search term' };
-    const result = SearchSchema.safeParse(validSearch);
-    expect(result.success).toBe(true);
-  });
-});

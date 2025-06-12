@@ -82,9 +82,6 @@ export const ShowSchema = z
     message: 'Either id or query must be provided',
   });
 
-export const SearchSchema = z.object({
-  query: z.string().max(255).optional().describe('Search query (leave empty to just open search)'),
-});
 
 export const GetListByNameSchema = z.object({
   list: z.enum([

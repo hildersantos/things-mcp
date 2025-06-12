@@ -199,7 +199,6 @@ All list tools support an optional `max_results` parameter to limit output.
 
 ### Navigation Tools
 - `things_show` - Navigate to item or list
-- `things_search` - Open search with optional query
 
 ## Development
 
