@@ -23,7 +23,7 @@ class UpdateJSONToolHandler extends AbstractToolHandler<UpdateJSONParams> {
     },
     {
       name: 'things_add_items_to_project',
-      description: 'Add structured todos and headings to an existing project. Perfect for expanding projects with new phases, tasks, or categories.',
+      description: 'Add todos and headings to an existing project. Items are added as a flat array where headings act as visual separators for the todos that follow them.',
       schema: AddItemsToProjectSchema as any
     }
   ];

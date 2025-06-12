@@ -18,7 +18,7 @@ class AddToolHandler extends AbstractToolHandler<AddParams> {
     },
     {
       name: 'things_add_project',
-      description: 'Creates a project in Things with support for sections (headings), todos, and hierarchical organization. Perfect for complex projects with multiple phases, days, or categories. When user says \'separate as sections/headings\', use heading items to create dividers.',
+      description: 'Creates a project in Things with support for sections (headings) and todos. Perfect for complex projects with multiple phases, days, or categories. Headings act as visual dividers - todos that follow a heading in the items array will appear grouped under it.',
       schema: AddProjectSchema
     }
   ];
